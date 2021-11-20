@@ -1,11 +1,11 @@
 const program = require('commander');
-const {login, deposit, transfer} = require('./functions');
+const {login, deposit, transfer, logout} = require('./functions');
 
 program.version('1.0.0').description('ATM CLI');
 
 program
   .command('login <name>')
-  .alias('L')
+  .alias('IN')
   .description('Login to ATM')
   .action((name) => {
     login(name);
@@ -26,5 +26,14 @@ program
   .action((target, amount) => {
     transfer(target, amount)
   })
+
+program
+  .command('Logout')
+  .alias('OUT')
+  .description('User logout')
+  .action(() => {
+    logout()
+  })
+
 
 program.parse(process.argv);

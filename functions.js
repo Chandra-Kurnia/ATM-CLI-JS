@@ -11,8 +11,13 @@ const transfer = (target, amount) => {
     console.log(`You transfered to ${target} with amount = ${amount}`);
 }
 
+const logout = () => {
+  console.log('Good bye, ...');
+}
+
 module.exports = {
   login,
   deposit,
-  transfer
+  transfer,
+  logout
 };
