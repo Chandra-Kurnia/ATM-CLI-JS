@@ -130,25 +130,41 @@ const transfer = async (target, amount) => {
     }
     if (user.length > 0) {
       if (recipient.length > 0 && recipient[0].user_id !== user[0].user_id) {
-        if (user[0].balance < amount) {
+        const accRec = await model.getOweds(user[0].user_id);
+        let totalAmount = amount;
+        if (accRec.length > 0 && accRec[0].debtor === recipient[0].user_id) {
+          if (parseInt(accRec[0].amount) - parseInt(amount) === 0) {
+            await model.deleteOweds(accRec[0].owed_id);
+            console.log('Transfer success');
+            console.log(`Transferred ${amount} to ${recipient[0].name}`);
+            console.log(`Owed 0 from ${accRec[0].debtor_name}`);
+            process.exit();
+          } else if(amount < accRec[0].amount){
+            totalAmount = parseInt(accRec[0].amount) - parseInt(amount);
+            // update hutangnya saja tidak lanjut ke transfer yang dibawah
+          }else{
+            // jika amount > hutangnya, maka sisanya itu di transfer biasa seperti dibawah
+          }
+        }
+        if (user[0].balance < totalAmount) {
           const owedData = {
             debtor: user[0].user_id,
             creditor: recipient[0].user_id,
-            amount: parseInt(amount) - parseInt(user[0].balance),
+            amount: parseInt(totalAmount) - parseInt(user[0].balance),
           };
-          const transferResult = await model.transfer(user[0].user_id, recipient[0].user_id, user[0].balance);
-          const owedResult = await model.createOwed(owedData);
+          await model.transfer(user[0].user_id, recipient[0].user_id, user[0].balance);
+          await model.createOwed(owedData);
           console.log('Transfer Success');
           console.log(`Transferred ${user[0].balance} to ${target}`);
           console.log('Your balance is : 0');
           console.log(`Owed ${owedData.amount} to ${recipient[0].name}`);
           process.exit();
         } else {
-          const transferResult = await model.transfer(user[0].user_id, recipient[0].user_id, amount);
+          const transferResult = await model.transfer(user[0].user_id, recipient[0].user_id, totalAmount);
           if (transferResult.affectedRows > 0) {
             console.log('Transfer Success');
-            console.log(`Transferred ${amount} to ${target}`);
-            console.log(`Your balance is : ${parseInt(user[0].balance) - parseInt(amount)}`);
+            console.log(`Transferred ${totalAmount} to ${target}`);
+            console.log(`Your balance is : ${parseInt(user[0].balance) - parseInt(totalAmount)}`);
             process.exit();
           } else {
             console.log('Transfer failed, please try again later');
