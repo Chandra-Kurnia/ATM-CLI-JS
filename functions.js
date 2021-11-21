@@ -1,7 +1,12 @@
 const model = require('./model');
 
 const login = async (name) => {
-  try {
+  try {                                                                                        
+    const userLoggedIn = await model.findUser('islogin', 1)
+    if(userLoggedIn.length > 0 && userLoggedIn[0].name !== name){
+      console.log(`You are still logged in as "${userLoggedIn[0].name}", please logout before logging in as "${name}"`);
+      process.exit()
+    }
     console.log('Welcome to atm-cli');
     const user = await model.findUser('name', name);
     if (user.length < 1) {
@@ -19,6 +24,7 @@ const login = async (name) => {
     } else {
       if (user[0].islogin === 1) {
         console.log(`You already logged in as "${user[0].name}"`);
+        console.log(`Your balance is : ${user[0].balance}`);
         process.exit();
       } else {
         console.log(`You logged in as "${user[0].name}"`);
@@ -84,7 +90,10 @@ const transfer = async (target, amount) => {
         if (transferResult.affectedRows > 0) {
           console.log('Transfer Success');
           console.log(`Your balance is : ${parseInt(user[0].balance) - parseInt(amount)}`);
-          process.exit()
+          process.exit();
+        } else {
+          console.log('Transfer failed, please try again later');
+          process.exit();
         }
       } else {
         console.log(`Recipients with the name ${target} could not be found`);
