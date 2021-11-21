@@ -4,12 +4,15 @@
   "description": "ATM CLI build with node js",
   "main": "index.js",
   "scripts": {
+    "serve": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Candra Kurniawan",
   "license": "ISC",
   "dependencies": {
     "commander": "^8.3.0",
-    "inquirer": "^8.2.0"
+    "dotenv": "^10.0.0",
+    "inquirer": "^8.2.0",
+    "mysql2": "^2.3.3"
   }
 }

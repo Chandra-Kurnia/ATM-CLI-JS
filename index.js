@@ -12,6 +12,14 @@ program
   });
 
 program
+  .command('logout')
+  .alias('OUT')
+  .description('User logout')
+  .action(() => {
+    logout();
+  });
+
+program
   .command('deposit <amount>')
   .alias('D')
   .description('Deposit to account')
@@ -24,16 +32,7 @@ program
   .alias('TF')
   .description('Transfer to other user')
   .action((target, amount) => {
-    transfer(target, amount)
-  })
-
-program
-  .command('Logout')
-  .alias('OUT')
-  .description('User logout')
-  .action(() => {
-    logout()
-  })
-
+    transfer(target, amount);
+  });
 
 program.parse(process.argv);
