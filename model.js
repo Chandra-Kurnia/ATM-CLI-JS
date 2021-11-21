@@ -119,6 +119,17 @@ const deleteOweds = (owed_id) =>
     });
   });
 
+const withdraw = (user_id, amount) =>
+  new Promise((resolve, reject) => {
+    connection.query(`UPDATE users SET balance=balance-${amount}`, (err, result) => {
+      if(err){
+        reject(err)
+      }else{
+        resolve(result)
+      }
+    });
+  });
+
 module.exports = {
   getUser,
   findUser,
@@ -130,4 +141,5 @@ module.exports = {
   getOweds,
   updateOweds,
   deleteOweds,
+  withdraw,
 };

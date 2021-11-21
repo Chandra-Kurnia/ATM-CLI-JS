@@ -147,8 +147,8 @@ const transfer = async (target, amount) => {
             console.log(`Owed ${totalAmount} from ${accRec[0].debtor_name}`);
             process.exit();
           } else {
-            totalAmount = parseInt(amount) - parseInt(accRec[0].amount)
-            await model.deleteOweds(accRec[0].owed_id)
+            totalAmount = parseInt(amount) - parseInt(accRec[0].amount);
+            await model.deleteOweds(accRec[0].owed_id);
             console.log(`Owed 0 from ${accRec[0].debtor_name}`);
           }
         }
@@ -194,9 +194,35 @@ const transfer = async (target, amount) => {
   }
 };
 
+const withdraw = async (amount) => {
+  try {
+    const user = await model.findUser('islogin', 1);
+    if (user.length > 0) {
+      if(parseInt(amount) > parseInt(user[0].balance)){
+        console.log('Withdraw Failed');
+        console.log(`Your balance is not more than ${user[0].balance}`);
+        process.exit()
+      }
+      const withDrawResult = await model.withdraw(user[0].user_id, amount);
+      if (withDrawResult.affectedRows > 0) {
+        console.log('Withdraw success');
+        console.log(`Your balance is : ${parseInt(user[0].balance) - parseInt(amount)}`);
+        process.exit();
+      }
+    } else {
+      console.log('Please login before withdrawing the balance.');
+      process.exit();
+    }
+  } catch (error) {
+    console.log(error);
+    process.exit();
+  }
+};
+
 module.exports = {
   login,
   deposit,
   transfer,
   logout,
+  withdraw,
 };
