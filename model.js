@@ -72,6 +72,16 @@ const transfer = (sender_id, recipient_id, amount) =>
     });
   });
 
+const createOwed = (oweddata) => new Promise((resolve, reject) => {
+  connection.query('INSERT INTO oweds SET ?', oweddata, (err, result) => {
+    if(err){
+      reject(err)
+    }else{
+      resolve(result)
+    }
+  })
+})
+
 module.exports = {
   getUser,
   findUser,
@@ -79,4 +89,5 @@ module.exports = {
   auth,
   deposit,
   transfer,
+  createOwed
 };
