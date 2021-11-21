@@ -97,6 +97,28 @@ const getOweds = (user_id) =>
     );
   });
 
+const updateOweds = (owed_id, amount) =>
+  new Promise((resolve, reject) => {
+    connection.query(`UPDATE oweds SET amount=${amount} WHERE owed_id=${owed_id}`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+
+const deleteOweds = (owed_id) =>
+  new Promise((resolve, reject) => {
+    connection.query(`DELETE FROM oweds WHERE owed_id=${owed_id}`, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+
 module.exports = {
   getUser,
   findUser,
@@ -106,4 +128,6 @@ module.exports = {
   transfer,
   createOwed,
   getOweds,
+  updateOweds,
+  deleteOweds,
 };

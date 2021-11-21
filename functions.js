@@ -22,25 +22,29 @@ const login = async (name) => {
         process.exit();
       }
     } else {
-      const oweds = await model.getOweds(user[0].user_id);
+      const owed = await model.getOweds(user[0].user_id);
       // When the user tries to re-login without logging out.
       if (user[0].islogin === 1) {
         console.log(`You already logged in as "${user[0].name}"`);
         console.log(`Your balance is : ${user[0].balance}`);
-        if (oweds.length > 0 && oweds[0].debtor === user[0].user_id) {
-          console.log(`Owed ${oweds[0].amount} to ${oweds[0].creditor_name}`);
-        } else {
-          console.log(`Owed ${oweds[0].amount} from ${oweds[0].debtor_name}`);
+        if (owed.length > 0) {
+          if (owed[0].debtor === user[0].user_id) {
+            console.log(`Owed ${owed[0].amount} to ${owed[0].creditor_name}`);
+          } else {
+            console.log(`Owed ${owed[0].amount} from ${owed[0].debtor_name}`);
+          }
         }
         process.exit();
       } else {
         // normal login
         console.log(`You logged in as "${user[0].name}"`);
         console.log(`Your balance is : ${user[0].balance}`);
-        if (oweds.length > 0 && oweds[0].debtor === user[0].user_id) {
-          console.log(`Owed ${oweds[0].amount} to ${oweds[0].creditor_name}`);
-        } else {
-          console.log(`Owed ${oweds[0].amount} from ${oweds[0].debtor_name}`);
+        if (owed.length > 0) {
+          if (owed[0].debtor === user[0].user_id) {
+            console.log(`Owed ${owed[0].amount} to ${owed[0].creditor_name}`);
+          } else {
+            console.log(`Owed ${owed[0].amount} from ${owed[0].debtor_name}`);
+          }
         }
         await model.auth(user[0].user_id, 1);
         process.exit();
@@ -74,6 +78,29 @@ const deposit = async (amount) => {
   try {
     const user = await model.findUser('islogin', 1);
     if (user.length > 0) {
+      const owed = await model.getOweds(user[0].user_id);
+      if (owed.length > 0 && owed[0].debtor === user[0].user_id) {
+        if (parseInt(amount) > parseInt(owed[0].amount)) {
+          console.log(amount);
+          console.log(owed[0].amount);
+          const balanceUser = parseInt(amount) - parseInt(owed[0].amount);
+          await model.deposit(user[0].user_id, balanceUser);
+          await model.deleteOweds(owed[0].owed_id);
+          await model.transfer(user[0].user_id, owed[0].creditor, owed[0].amount);
+          console.log(`Transferred ${owed[0].amount} to ${owed[0].creditor_name}`);
+          console.log(`Your balance is : ${balanceUser}`);
+          console.log(`Owed 0 to ${owed[0].creditor_name}`);
+          process.exit();
+        } else {
+          const remainOwed = parseInt(owed[0].amount) - parseInt(amount);
+          await model.updateOweds(owed[0].owed_id, remainOwed);
+          await model.transfer(user[0].user_id, owed[0].creditor, amount);
+          console.log(`Transferred ${amount} to ${owed[0].creditor_name}`);
+          console.log('Your balance is : 0');
+          console.log(`Owed ${remainOwed}`);
+          process.exit();
+        }
+      }
       const depositResult = await model.deposit(user[0].user_id, amount);
       if (depositResult.affectedRows > 0) {
         console.log('Deposit success');
