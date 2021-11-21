@@ -3,14 +3,14 @@ const model = require('./model');
 const login = async (name) => {
   try {
     const userLoggedIn = await model.findUser('islogin', 1);
+    // When the current user has not logged out and wants to login using another account.
     if (userLoggedIn.length > 0 && userLoggedIn[0].name !== name) {
       console.log(`You are still logged in as "${userLoggedIn[0].name}", please logout before logging in as "${name}"`);
       process.exit();
     }
-    console.log('Welcome to atm-cli');
     const user = await model.findUser('name', name);
+    // When the user does not have an account.
     if (user.length < 1) {
-      // console.log(`User not found, are you want create new user with name "${name}" ?`);
       const addUser = await model.addUser({
         name,
         balance: 0,
@@ -22,13 +22,26 @@ const login = async (name) => {
         process.exit();
       }
     } else {
+      const oweds = await model.getOweds(user[0].user_id);
+      // When the user tries to re-login without logging out.
       if (user[0].islogin === 1) {
         console.log(`You already logged in as "${user[0].name}"`);
         console.log(`Your balance is : ${user[0].balance}`);
+        if (oweds.length > 0 && oweds[0].debtor === user[0].user_id) {
+          console.log(`Owed ${oweds[0].amount} to ${oweds[0].creditor_name}`);
+        } else {
+          console.log(`Owed ${oweds[0].amount} from ${oweds[0].debtor_name}`);
+        }
         process.exit();
       } else {
+        // normal login
         console.log(`You logged in as "${user[0].name}"`);
         console.log(`Your balance is : ${user[0].balance}`);
+        if (oweds.length > 0 && oweds[0].debtor === user[0].user_id) {
+          console.log(`Owed ${oweds[0].amount} to ${oweds[0].creditor_name}`);
+        } else {
+          console.log(`Owed ${oweds[0].amount} from ${oweds[0].debtor_name}`);
+        }
         await model.auth(user[0].user_id, 1);
         process.exit();
       }
@@ -102,7 +115,7 @@ const transfer = async (target, amount) => {
           console.log(`Transferred ${user[0].balance} to ${target}`);
           console.log('Your balance is : 0');
           console.log(`Owed ${owedData.amount} to ${recipient[0].name}`);
-          process.exit()
+          process.exit();
         } else {
           const transferResult = await model.transfer(user[0].user_id, recipient[0].user_id, amount);
           if (transferResult.affectedRows > 0) {

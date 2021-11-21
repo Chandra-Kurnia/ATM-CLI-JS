@@ -72,15 +72,30 @@ const transfer = (sender_id, recipient_id, amount) =>
     });
   });
 
-const createOwed = (oweddata) => new Promise((resolve, reject) => {
-  connection.query('INSERT INTO oweds SET ?', oweddata, (err, result) => {
-    if(err){
-      reject(err)
-    }else{
-      resolve(result)
-    }
-  })
-})
+const createOwed = (oweddata) =>
+  new Promise((resolve, reject) => {
+    connection.query('INSERT INTO oweds SET ?', oweddata, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+
+const getOweds = (user_id) =>
+  new Promise((resolve, reject) => {
+    connection.query(
+      `select owed_id, debtor, (select name from users where user_id=debtor) as debtor_name, creditor, (select name from users where user_id=creditor) as creditor_name, amount from oweds where (debtor=${user_id}) or (creditor=${user_id})`,
+      (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
 
 module.exports = {
   getUser,
@@ -89,5 +104,6 @@ module.exports = {
   auth,
   deposit,
   transfer,
-  createOwed
+  createOwed,
+  getOweds,
 };
