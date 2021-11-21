@@ -40,9 +40,20 @@ const auth = (id, islogin) => new Promise((resolve, reject) => {
     })
 })
 
+const deposit = (user_id, amount) => new Promise((resolve, reject) => {
+    connection.query(`UPDATE users SET balance=balance+${amount} WHERE user_id=${user_id}`, (err, result) => {
+        if(err){
+            reject(err)
+        }else{
+            resolve(result)
+        }
+    })
+})
+
 module.exports = {
     getUser,
     findUser,
     addUser,
-    auth
+    auth,
+    deposit
 }

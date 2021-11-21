@@ -35,30 +35,48 @@ const login = async (name) => {
 
 const logout = async () => {
   try {
-    const user = await model.findUser('islogin', 1)
-    if(user.length > 0){
-      await model.auth(user[0].user_id, 0)
+    const user = await model.findUser('islogin', 1);
+    if (user.length > 0) {
+      await model.auth(user[0].user_id, 0);
       console.log('Logout success');
       console.log(`Goodbye ${user[0].name}`);
-      process.exit()
-    }else{
+      process.exit();
+    } else {
       console.log('You are not logged in');
-      process.exit()
+      process.exit();
     }
   } catch (error) {
     console.log(error);
-    process.exit()
+    process.exit();
   }
 };
 
-const deposit = (amount) => {
-  console.log('Deposit ' + amount);
+const deposit = async (amount) => {
+  try {
+    const user = await model.findUser('islogin', 1);
+    if (user.length > 0) {
+      const depositResult = await model.deposit(user[0].user_id, amount);
+      if (depositResult.affectedRows > 0) {
+        console.log('Deposit success');
+        console.log(`Your balance is : ${parseInt(user[0].balance) + parseInt(amount)}`);
+        process.exit();
+      }else{
+        console.log('Deposit failed, please try again later');
+        process.exit()
+      }
+    } else {
+      console.log('Please login before making a deposit');
+      process.exit();
+    }
+  } catch (error) {
+    console.log(error);
+    process.exit();
+  }
 };
 
 const transfer = (target, amount) => {
   console.log(`You transfered to ${target} with amount = ${amount}`);
 };
-
 
 module.exports = {
   login,
