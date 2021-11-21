@@ -26,6 +26,10 @@ program
   .alias('D')
   .description('Deposit to account')
   .action((amount) => {
+    if (isNaN(amount)) {
+      console.log('Amount must be number');
+      process.exit();
+    }
     deposit(amount);
   });
 
@@ -34,6 +38,10 @@ program
   .alias('TF')
   .description('Transfer to other user')
   .action((target, amount) => {
+    if (isNaN(amount)) {
+      console.log('Amount must be number');
+      process.exit();
+    }
     transfer(target, amount);
   });
 
@@ -42,6 +50,10 @@ program
   .alias('PULL')
   .description('Withdraw your balance')
   .action((amount) => {
+    if (isNaN(amount)) {
+      console.log('Amount must be number');
+      process.exit();
+    }
     withdraw(amount);
   });
 
