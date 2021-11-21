@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const program = require('commander');
-const {login, deposit, transfer, logout, withdraw} = require('./functions');
+const {login, deposit, transfer, logout, withdraw, profile} = require('./functions');
 
 program.version('1.0.0').description('ATM CLI');
 
@@ -56,5 +56,13 @@ program
     }
     withdraw(amount);
   });
+
+program
+  .command('profile')
+  .alias('P')
+  .description('View Your profile and balance')
+  .action(() => {
+    profile()
+  })
 
 program.parse(process.argv);
