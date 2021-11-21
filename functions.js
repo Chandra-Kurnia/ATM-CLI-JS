@@ -60,9 +60,9 @@ const deposit = async (amount) => {
         console.log('Deposit success');
         console.log(`Your balance is : ${parseInt(user[0].balance) + parseInt(amount)}`);
         process.exit();
-      }else{
+      } else {
         console.log('Deposit failed, please try again later');
-        process.exit()
+        process.exit();
       }
     } else {
       console.log('Please login before making a deposit');
@@ -74,8 +74,30 @@ const deposit = async (amount) => {
   }
 };
 
-const transfer = (target, amount) => {
-  console.log(`You transfered to ${target} with amount = ${amount}`);
+const transfer = async (target, amount) => {
+  try {
+    const user = await model.findUser('islogin', 1);
+    const recipient = await model.findUser('name', target);
+    if (user.length > 0) {
+      if (recipient.length > 0) {
+        const transferResult = await model.transfer(user[0].user_id, recipient[0].user_id, amount);
+        if (transferResult.affectedRows > 0) {
+          console.log('Transfer Success');
+          console.log(`Your balance is : ${parseInt(user[0].balance) - parseInt(amount)}`);
+          process.exit()
+        }
+      } else {
+        console.log(`Recipients with the name ${target} could not be found`);
+        process.exit();
+      }
+    } else {
+      console.log('Please login before making a transfer');
+      process.exit();
+    }
+  } catch (error) {
+    console.log(error);
+    process.exit();
+  }
 };
 
 module.exports = {
