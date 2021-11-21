@@ -139,11 +139,17 @@ const transfer = async (target, amount) => {
             console.log(`Transferred ${amount} to ${recipient[0].name}`);
             console.log(`Owed 0 from ${accRec[0].debtor_name}`);
             process.exit();
-          } else if(amount < accRec[0].amount){
+          } else if (parseInt(amount) < parseInt(accRec[0].amount)) {
             totalAmount = parseInt(accRec[0].amount) - parseInt(amount);
-            // update hutangnya saja tidak lanjut ke transfer yang dibawah
-          }else{
-            // jika amount > hutangnya, maka sisanya itu di transfer biasa seperti dibawah
+            await model.updateOweds(accRec[0].owed_id, totalAmount);
+            console.log('Transfer success');
+            console.log(`Reduce ${accRec[0].debtor_name} debt = ${amount}`);
+            console.log(`Owed ${totalAmount} from ${accRec[0].debtor_name}`);
+            process.exit();
+          } else {
+            totalAmount = parseInt(amount) - parseInt(accRec[0].amount)
+            await model.deleteOweds(accRec[0].owed_id)
+            console.log(`Owed 0 from ${accRec[0].debtor_name}`);
           }
         }
         if (user[0].balance < totalAmount) {
